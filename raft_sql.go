@@ -147,6 +147,21 @@ func handleTaskByID(db *sql.DB,w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.Method {
+	case http.MethodPut:
+        // Update a task by ID
+        var task Task
+        err := json.NewDecoder(r.Body).Decode(&task)
+        if err != nil {
+            http.Error(w, "Bad request", http.StatusBadRequest)
+            return
+        }
+        task.ID = id // Set the ID from URL
+        err = UpdateTask(db, task)
+        if err != nil {
+            http.Error(w, "Internal server error", http.StatusInternalServerError)
+            return
+        }
+        json.NewEncoder(w).Encode(map[string]interface{}{"success": true})
 	case http.MethodGet:
 		// Fetch a task by ID
 		task, err := ReadTask(db, id)
